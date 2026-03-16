@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>测试</title>
+</head>
+<body>
+  <h1>如果看到这个，说明浏览器正常</h1>
+  <div id="root"></div>
+  <script>
+    console.log("JS正常执行");
+    document.getElementById('root').innerHTML = '<p>React容器: root</p>';
+    fetch('/api/timer').then(r=>r.json()).then(d=>console.log('API:',d));
+  </script>
+</body>
+</html>

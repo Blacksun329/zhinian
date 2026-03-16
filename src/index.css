@@ -1,0 +1,97 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@300;400;500;700;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-zen-50: #F9F9F8; /* 极淡的灰白，近乎纸的质感 */
+  --color-zen-100: #F2F1ED; /* 浅米灰 */
+  --color-zen-200: #E6E4DC; /* 缃叶黄/米色底 */
+  --color-zen-accent: #3E4B42; /* 玄青/水墨深绿，非常克制的主色 */
+  --color-zen-accent-light: #8A9A92; /* 浅水墨绿 */
+  --color-zen-text: #2C2E2D; /* 水墨黑，非纯黑，柔和 */
+  --color-zen-text-muted: #8C8F8D; /* 银灰/听雨灰 */
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Noto Serif SC", STZhongsong, "SimSun", serif; /* 强化中文字体兜底 */
+}
+
+@layer base {
+  :root {
+    --safe-area-inset-top: env(safe-area-inset-top, 0px);
+    --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  body {
+    font-family: 'Inter', 'Noto Serif SC', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--zen-text);
+    background-color: var(--zen-bg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    -webkit-tap-highlight-color: transparent;
+    @apply overflow-hidden; /* Keep overflow-hidden from original body */
+  }
+}
+
+.glass-nav {
+  @apply bg-white/60 backdrop-blur-xl border-t border-white/40 shadow-[0_-8px_32px_rgba(0,0,0,0.02)];
+}
+
+.glass-button {
+  @apply bg-white/40 backdrop-blur-md border border-white/60 shadow-sm transition-all duration-300 active:scale-95;
+}
+
+.glass-button-primary {
+  @apply bg-zen-accent text-white shadow-lg shadow-zen-accent/20 transition-all duration-300 active:scale-95;
+}
+
+.card-clean {
+  @apply bg-white/70 backdrop-blur-md rounded-[32px] border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.04)];
+}
+
+.safe-top { padding-top: var(--safe-area-inset-top); }
+.safe-bottom { padding-bottom: var(--safe-area-inset-bottom); }
+
+/* Hide scrollbar but allow scrolling */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.font-serif {
+  font-family: 'Noto Serif SC', serif;
+}
+
+.text-gradient-teal {
+  background: linear-gradient(to bottom right, #2D3748 30%, #4FD1C5 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.circular-progress-container {
+  @apply relative flex items-center justify-center;
+}
+
+.circular-progress-svg {
+  @apply transform -rotate-90;
+}
+
+.circular-progress-bg {
+  @apply text-gray-100;
+}
+
+.circular-progress-bar {
+  @apply text-zen-accent transition-all duration-1000 ease-out;
+  stroke-linecap: round;
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 8s linear infinite;
+}
