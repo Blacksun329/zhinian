@@ -18,7 +18,7 @@ export const SplashScreen: React.FC = () => {
             ease: "easeOut",
             delay: 0.2
           }}
-          className="w-[45%] aspect-square flex items-center justify-center bg-white rounded-[32px] shadow-sm overflow-hidden p-6"
+          className="w-[45%] max-w-[280px] aspect-square flex items-center justify-center bg-white rounded-[32px] shadow-sm overflow-hidden p-6"
         >
           <img 
             src="/logo.svg" 

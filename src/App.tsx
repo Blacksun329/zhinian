@@ -134,8 +134,8 @@ export default function App() {
   }, [completedTasks]);
 
   return (
-    <div className="min-h-dvh bg-zinc-50 flex items-center justify-center md:p-4">
-      <div className="w-full h-dvh md:max-w-md md:h-[844px] bg-white md:rounded-[3rem] flex flex-col relative overflow-hidden md:shadow-2xl md:border-[8px] md:border-white ring-1 ring-black/5">
+    <div className="min-h-dvh bg-zinc-50">
+      <div className="w-full h-dvh flex flex-col relative overflow-hidden">
         <LiquidBackground />
         {/* Dynamic Music System */}
         <audio 
