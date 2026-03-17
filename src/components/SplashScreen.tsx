@@ -7,7 +7,7 @@ export const SplashScreen: React.FC = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[200] bg-white flex flex-col items-center justify-center p-8"
+      className="fixed inset-0 z-[200] bg-[#E9F1F2] flex flex-col items-center justify-center p-8"
     >
       <div className="w-full flex flex-col items-center gap-8">
         <motion.div
@@ -18,7 +18,7 @@ export const SplashScreen: React.FC = () => {
             ease: "easeOut",
             delay: 0.2
           }}
-          className="w-[60%] aspect-square flex items-center justify-center"
+          className="w-[45%] aspect-square flex items-center justify-center bg-white rounded-[32px] shadow-sm overflow-hidden p-6"
         >
           <img 
             src="/logo.svg" 
