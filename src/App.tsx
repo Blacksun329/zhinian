@@ -11,26 +11,13 @@ import {
 import { TabButton } from './components/TabButton';
 import { SOSModal } from './components/SOSModal';
 import { LiquidBackground } from './components/LiquidBackground';
+import { storageService, Post, Envelope } from './services/storageService';
 
 // Views
 import { TimerView } from './views/TimerView';
 import { EnvelopeView } from './views/EnvelopeView';
 import { CommunityView } from './views/CommunityView';
 import { TasksView } from './views/TasksView';
-
-// --- Types ---
-interface Post {
-  id: number;
-  content: string;
-  candles: number;
-  created_at: string;
-}
-
-interface Envelope {
-  id: number;
-  content: string;
-  created_at: string;
-}
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'timer' | 'envelope' | 'tasks' | 'community'>('timer');
@@ -64,7 +51,6 @@ export default function App() {
         if (playPromise !== undefined) {
           playPromise.catch(error => {
             console.error("Playback failed:", error);
-            // Handle common mobile/browser autoplay restrictions
             const handleInteract = () => {
               audioRef.current?.play();
               setIsMusicPlaying(true);
@@ -78,16 +64,8 @@ export default function App() {
     }
   };
 
-  const handleGlobalClick = () => {
-    if (!isMusicPlaying && audioRef.current) {
-      // Logic removed to prevent unintended music starting on every click
-      // but keeping the wrapper if needed for other global state
-    }
-  };
-
   const handleTrackEnded = () => {
     shuffleTrack();
-    // After source changes, we need to play again
     setTimeout(() => {
       if (isMusicPlaying) audioRef.current?.play();
     }, 100);
@@ -95,43 +73,33 @@ export default function App() {
 
   const handleSendEnvelope = async () => {
     if (!newEnvelope.trim()) return;
-    await fetch('/api/envelopes', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content: newEnvelope })
-    });
+    storageService.saveEnvelope(newEnvelope);
     setNewEnvelope('');
-    const res = await fetch('/api/envelopes');
-    setEnvelopes(await res.json());
+    setEnvelopes(storageService.getEnvelopes());
   };
 
   const handlePost = async () => {
     if (!newPost.trim()) return;
-    await fetch('/api/posts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content: newPost })
-    });
+    storageService.savePost(newPost);
     setNewPost('');
-    const res = await fetch('/api/posts');
-    setPosts(await res.json());
+    setPosts(storageService.getPosts());
   };
 
   const lightCandle = async (id: number) => {
-    await fetch(`/api/posts/${id}/candle`, { method: 'POST' });
-    setPosts(posts.map(p => p.id === id ? { ...p, candles: p.candles + 1 } : p));
+    storageService.lightCandle(id);
+    setPosts(storageService.getPosts());
   };
 
   // Fetch initial data & Randomize music
   useEffect(() => {
     const fetchData = async () => {
-      const timerRes = await fetch('/api/timer');
-      const timerData = await timerRes.json();
-      const start = new Date(timerData.start_date);
+      const startStr = storageService.getTimer();
+      const start = new Date(startStr);
       setStartDate(start);
 
-      fetch('/api/posts').then(res => res.json()).then(setPosts);
-      fetch('/api/envelopes').then(res => res.json()).then(setEnvelopes);
+      setPosts(storageService.getPosts());
+      setEnvelopes(storageService.getEnvelopes());
+      setCompletedTasks(storageService.getCompletedTasks());
 
       const diffTime = Math.abs(new Date().getTime() - start.getTime());
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
@@ -151,8 +119,13 @@ export default function App() {
     return () => clearInterval(interval);
   }, []);
 
+  // Auto-save tasks
+  useEffect(() => {
+    storageService.saveCompletedTasks(completedTasks);
+  }, [completedTasks]);
+
   return (
-    <div className="min-h-dvh bg-zinc-50 flex items-center justify-center md:p-4" onClick={handleGlobalClick}>
+    <div className="min-h-dvh bg-zinc-50 flex items-center justify-center md:p-4">
       <div className="w-full h-dvh md:max-w-md md:h-[844px] bg-white md:rounded-[3rem] flex flex-col relative overflow-hidden md:shadow-2xl md:border-[8px] md:border-white ring-1 ring-black/5">
         <LiquidBackground />
         {/* Dynamic Music System */}
