@@ -11,6 +11,7 @@ import {
 import { TabButton } from './components/TabButton';
 import { SOSModal } from './components/SOSModal';
 import { LiquidBackground } from './components/LiquidBackground';
+import { SplashScreen } from './components/SplashScreen';
 import { storageService, Post, Envelope } from './services/storageService';
 
 // Views
@@ -32,6 +33,7 @@ export default function App() {
   const [completedTasks, setCompletedTasks] = useState<number[]>([]);
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
+  const [showSplash, setShowSplash] = useState(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const shuffleTrack = () => {
@@ -116,7 +118,14 @@ export default function App() {
 
     fetchData();
     const interval = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(interval);
+    
+    // Splash screen timer
+    const splashTimer = setTimeout(() => setShowSplash(false), 2500);
+    
+    return () => {
+      clearInterval(interval);
+      clearTimeout(splashTimer);
+    };
   }, []);
 
   // Auto-save tasks
@@ -222,6 +231,10 @@ export default function App() {
 
         <AnimatePresence>
           {showSOS && <SOSModal onClose={() => setShowSOS(false)} />}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {showSplash && <SplashScreen key="splash" />}
         </AnimatePresence>
       </div>
     </div>
