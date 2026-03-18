@@ -68,11 +68,11 @@ export const CommunityView: React.FC<CommunityViewProps> = ({
   };
 
   return (
-    <div className="flex flex-col pt-12 pb-32 h-full relative">
-      <div className="w-full px-8 flex justify-between items-center mb-8">
-        <ArrowLeft size={24} className="text-zen-text-muted" />
+    <div className="flex flex-col pt-[var(--safe-area-inset-top)] pb-32 h-full relative">
+      <div className="w-full px-8 flex justify-between items-center h-16 mb-4">
+        <ArrowLeft size={24} className="text-zen-text-muted cursor-pointer" />
         <h2 className="text-sm font-bold tracking-widest text-zen-text uppercase">同修</h2>
-        <div className="w-6" /> {/* Spacer */}
+        <div className="w-6" />
       </div>
 
       <div className="px-8 mb-6">
@@ -106,13 +106,21 @@ export const CommunityView: React.FC<CommunityViewProps> = ({
               {post.content}
             </p>
 
-            <button
-              onClick={() => lightCandle(post.id)}
-              className="flex items-center gap-2 text-zen-text-muted hover:text-zen-accent transition-colors py-1 px-3 rounded-full bg-zen-50 border border-transparent hover:border-zen-accent/20"
-            >
-              <Flame size={14} className={cn(post.candles > 0 && "text-orange-500")} />
-              <span className="text-[10px] font-black">{post.candles || "送出一盏灯"}</span>
-            </button>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => lightCandle(post.id)}
+                className="flex items-center gap-2 text-zen-text-muted hover:text-zen-accent transition-colors py-1.5 px-4 rounded-full bg-zen-50 border border-transparent hover:border-zen-accent/20"
+              >
+                <Flame size={14} className={cn(post.candles > 0 && "text-orange-500")} />
+                <span className="text-[10px] font-black">{post.candles || "同修"}</span>
+              </button>
+              
+              {/* P2: 新增评论功能入口 */}
+              <button className="flex items-center gap-2 text-zen-text-muted hover:text-zen-accent transition-colors py-1.5 px-4 rounded-full bg-zen-50 border border-transparent hover:border-zen-accent/20">
+                <MessageSquareOff size={14} />
+                <span className="text-[10px] font-black">留言</span>
+              </button>
+            </div>
           </motion.div>
         ))}
       </div>

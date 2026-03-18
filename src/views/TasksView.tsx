@@ -68,11 +68,23 @@ export const TasksView: React.FC<TasksViewProps> = ({
   const progress = (totalPoints / maxPoints) * 100;
 
   return (
-    <div className="flex flex-col pt-12 pb-32 px-8 h-full">
-      <div className="w-full flex justify-between items-center mb-8">
-        <ArrowLeft size={24} className="text-zen-text-muted" />
+    <div className="flex flex-col pt-[var(--safe-area-inset-top)] pb-32 px-8 h-full">
+      <div className="w-full flex justify-between items-center h-16 mb-4">
+        <ArrowLeft size={24} className="text-zen-text-muted cursor-pointer" />
         <h2 className="text-sm font-bold tracking-widest text-zen-text uppercase">重塑自我</h2>
         <Bell size={24} className="text-zen-text-muted" />
+      </div>
+
+      <div className="mb-8">
+        <div className="card-clean p-6 bg-[#E9F1F2]/50 border-none shadow-none flex items-center justify-between overflow-hidden relative">
+          <div className="relative z-10">
+            <h3 className="text-[10px] font-bold tracking-[0.2em] uppercase text-zen-accent/60 mb-2">成长状态</h3>
+            <p className="text-sm font-serif text-zen-text font-bold leading-relaxed">
+              您正在逐步找回专注的自己
+            </p>
+          </div>
+          <Activity size={40} className="text-zen-accent/10" />
+        </div>
       </div>
 
       <div className="mb-10">

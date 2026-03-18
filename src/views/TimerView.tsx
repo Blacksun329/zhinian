@@ -34,19 +34,38 @@ export const TimerView: React.FC<TimerViewProps> = ({
   const progress = Math.min((days / 21) * 100, 100);
 
   return (
-    <div className="flex flex-col items-center pt-12 pb-32">
-      <div className="w-full px-8 flex justify-between items-center mb-12">
-        <ArrowLeft size={24} className="text-zen-text-muted" />
+    <div className="flex flex-col items-center pt-[var(--safe-area-inset-top)] pb-32">
+      <div className="w-full px-8 flex justify-between items-center h-16 mb-4">
+        <ArrowLeft size={24} className="text-zen-text-muted cursor-pointer" />
         <h2 className="text-sm font-bold tracking-widest text-zen-text uppercase">止念计时</h2>
         <button 
           onClick={toggleMusic}
           className={cn(
-            "w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-500",
-            isMusicPlaying ? "bg-zen-accent text-white" : "bg-zen-accent-light text-zen-accent"
+            "w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500",
+            isMusicPlaying ? "bg-zen-accent text-white" : "bg-zen-accent-light/20 text-zen-accent border border-zen-accent/10"
           )}
         >
           {isMusicPlaying ? <Wind size={20} className="animate-spin-slow" /> : <Moon size={20} />}
         </button>
+      </div>
+
+      {/* 顶部建议/设计区 (P0修正) */}
+      <div className="w-full px-8 mb-8">
+        <div className="card-clean p-6 bg-[#E9F1F2]/50 border-none shadow-none flex items-center justify-between overflow-hidden relative group">
+          <div className="relative z-10">
+            <h3 className="text-[10px] font-bold tracking-[0.2em] uppercase text-zen-accent/60 mb-1">今日正念建议</h3>
+            <p className="text-sm font-serif text-zen-text font-bold leading-relaxed line-clamp-2">
+              静坐片刻，剥离杂念。感受呼吸的进出。
+            </p>
+          </div>
+          <motion.div 
+             animate={{ rotate: [0, 10, -10, 0] }}
+             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+             className="text-zen-accent/10"
+          >
+            <Sparkles size={48} />
+          </motion.div>
+        </div>
       </div>
 
       <div className="text-center mb-8">

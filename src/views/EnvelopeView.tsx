@@ -1,8 +1,9 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowLeft, Settings, Mail, History } from 'lucide-react';
+import { ArrowLeft, Settings, Mail, History, Flame } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
+import { cn } from '../lib/utils';
 import { IncineratorEffect } from '../components/IncineratorEffect';
 
 interface Envelope {
@@ -53,11 +54,11 @@ export const EnvelopeView: React.FC<EnvelopeViewProps> = ({
   };
 
   return (
-    <div className="flex flex-col pt-12 pb-32 h-full relative">
+    <div className="flex flex-col pt-[var(--safe-area-inset-top)] pb-32 h-full relative">
       <IncineratorEffect isActive={isBurning} onComplete={onBurnComplete} />
       
-      <div className="w-full px-8 flex justify-between items-center mb-12">
-        <ArrowLeft size={24} className="text-zen-text-muted" />
+      <div className="w-full px-8 flex justify-between items-center h-16 mb-4">
+        <ArrowLeft size={24} className="text-zen-text-muted cursor-pointer" />
         <h2 className="text-sm font-bold tracking-widest text-zen-text uppercase">破执</h2>
         <button onClick={() => setShowHistory(!showHistory)} className="text-zen-text-muted hover:text-zen-text transition-colors">
           <History size={24} />
@@ -88,28 +89,43 @@ export const EnvelopeView: React.FC<EnvelopeViewProps> = ({
                 />
               </motion.div>
               
-              <div className="flex flex-col items-center mt-8">
+              <div className="flex flex-col items-center mt-4">
+                <div className="flex gap-6 mb-4">
+                  <button className="w-10 h-10 rounded-full bg-zen-50 border border-zen-200 flex items-center justify-center text-zen-text-muted hover:text-zen-accent transition-colors">
+                    <span className="text-[10px] font-bold">手写</span>
+                  </button>
+                  <button className="w-10 h-10 rounded-full bg-zen-50 border border-zen-200 flex items-center justify-center text-zen-text-muted hover:text-zen-accent transition-colors">
+                    <span className="text-[10px] font-bold">语音</span>
+                  </button>
+                </div>
                 <motion.button
                   onMouseDown={startPress}
                   onMouseUp={endPress}
                   onMouseLeave={endPress}
-                  onTouchStart={startPress}
-                  onTouchEnd={endPress}
-                  animate={isBurning ? { opacity: 0, scale: 0 } : (isPressing ? { scale: 0.9, backgroundColor: '#f97316' } : { scale: 1 })}
-                  className="w-20 h-20 rounded-full flex items-center justify-center bg-zen-accent text-white shadow-xl transition-all duration-500"
+                  onTouchStart={(e) => { e.preventDefault(); startPress(); }}
+                  onTouchEnd={(e) => { e.preventDefault(); endPress(); }}
+                  style={{ touchAction: 'none', WebkitUserSelect: 'none', userSelect: 'none' }}
+                  animate={isBurning ? { opacity: 0, scale: 0 } : (isPressing ? { scale: 0.85, filter: 'brightness(1.2)' } : { scale: 1 })}
+                  className="w-24 h-24 rounded-full flex flex-col items-center justify-center bg-orange-600 text-white shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-all duration-500 overflow-hidden group"
                 >
                   <motion.div
-                    animate={isPressing ? { rotate: [0, 45, -45, 0], scale: [1, 1.2, 1] } : {}}
-                    transition={{ repeat: Infinity, duration: 0.5 }}
+                    animate={isPressing ? { 
+                      scale: [1, 1.1, 1],
+                      rotate: [0, 2, -2, 0],
+                      backgroundColor: ['#ea580c', '#f97316', '#ea580c']
+                    } : {}}
+                    transition={{ repeat: Infinity, duration: 0.4 }}
+                    className="flex flex-col items-center justify-center w-full h-full"
                   >
-                    {isPressing ? <History size={32} className="animate-pulse" /> : <Mail size={32} />}
+                    <Flame size={32} className={cn("transition-transform duration-500", isPressing && "scale-125")} />
+                    <span className="text-[10px] font-black mt-1 uppercase tracking-widest">{isPressing ? "燃起" : "入火"}</span>
                   </motion.div>
                 </motion.button>
                 <motion.p 
                   animate={isBurning ? { opacity: 0 } : { opacity: 1 }}
-                  className="mt-4 text-[10px] font-bold text-zen-text-muted uppercase tracking-[0.2em]"
+                  className="mt-6 text-[10px] font-bold text-zen-text-muted uppercase tracking-[0.2em]"
                 >
-                  {isPressing ? "释放中..." : (newEnvelope.trim() ? "长按以释放念头" : "写下念头以解锁释放")}
+                  {isPressing ? "正在销毁执念..." : (newEnvelope.trim() ? "长按焚毁此刻念头" : "写下念头以解锁释放")}
                 </motion.p>
               </div>
 

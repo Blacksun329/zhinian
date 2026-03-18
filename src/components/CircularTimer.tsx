@@ -11,14 +11,14 @@ export const RollingNumber = ({ value }: { value: number }) => {
           <AnimatePresence mode="popLayout">
             <motion.span
               key={digit}
-              initial={{ y: 60, opacity: 0, filter: "blur(10px)" }}
-              animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
-              exit={{ y: -60, opacity: 0, filter: "blur(10px)" }}
+              initial={{ y: 80, opacity: 0, scale: 0.5, filter: "blur(10px)" }}
+              animate={{ y: 0, opacity: 1, scale: 1, filter: "blur(0px)" }}
+              exit={{ y: -80, opacity: 0, scale: 0.5, filter: "blur(10px)" }}
               transition={{ 
-                duration: 0.8, 
+                duration: 1.2, 
                 ease: [0.22, 1, 0.36, 1]
               }}
-              className="text-8xl font-sans font-black text-zen-text tracking-tighter block"
+              className="text-8xl font-serif font-black text-zen-text tracking-tighter block"
             >
               {digit}
             </motion.span>
@@ -46,15 +46,16 @@ export const CircularTimer: React.FC<CircularTimerProps> = ({ days, progress, ra
       {/* Background Aura - Breathing Layer 1 */}
       <motion.div
         animate={{
-          scale: [1, 1.15, 1],
-          opacity: [0.05, 0.12, 0.05],
+          scale: [1, 1.3, 1],
+          opacity: [0.05, 0.2, 0.05],
+          backgroundColor: ["#7abeb7", "#3E4B42", "#7abeb7"]
         }}
         transition={{
-          duration: 8,
+          duration: 5,
           repeat: Infinity,
           ease: "easeInOut",
         }}
-        className="absolute w-72 h-72 bg-zen-accent rounded-full blur-[80px]"
+        className="absolute w-72 h-72 rounded-full blur-[100px]"
       />
 
       {/* Background Aura - Breathing Layer 2 */}
@@ -112,13 +113,14 @@ export const CircularTimer: React.FC<CircularTimerProps> = ({ days, progress, ra
         />
       </svg>
 
-      <div className="absolute flex flex-col items-center justify-center z-20">
+      <div className="absolute flex flex-col items-center justify-center z-20 pointer-events-none">
         <motion.div
           animate={{
-            scale: [1, 1.02, 1],
+            scale: [1, 1.05, 1],
+            opacity: [0.8, 1, 0.8]
           }}
           transition={{
-            duration: 4,
+            duration: 5,
             repeat: Infinity,
             ease: "easeInOut",
           }}
@@ -127,12 +129,12 @@ export const CircularTimer: React.FC<CircularTimerProps> = ({ days, progress, ra
           <motion.span 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className={cn("text-sm font-serif font-bold tracking-[0.4em] mb-1", rankColor)}
+            className={cn("text-sm font-serif font-bold tracking-[0.4em] mb-1 transition-colors duration-1000", rankColor)}
           >
             {rankName}
           </motion.span>
           <RollingNumber value={days} />
-          <span className="text-xs font-bold text-zen-text-muted mt-2 tracking-[0.3em] uppercase">DAYS</span>
+          <span className="text-[10px] font-serif font-black text-zen-text-muted mt-2 tracking-[0.5em] uppercase">DAYS</span>
         </motion.div>
       </div>
     </div>
