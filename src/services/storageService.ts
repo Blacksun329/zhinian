@@ -1,8 +1,15 @@
+export interface Comment {
+  id: number;
+  content: string;
+  created_at: string;
+}
+
 export interface Post {
   id: number;
   content: string;
   candles: number;
   created_at: string;
+  comments?: Comment[];
 }
 
 export interface Envelope {
@@ -74,6 +81,20 @@ export const storageService = {
   lightCandle: (id: number): void => {
     const posts = storageService.getPosts();
     const updated = posts.map(p => p.id === id ? { ...p, candles: p.candles + 1 } : p);
+    localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(updated));
+  },
+  saveComment: (postId: number, content: string): void => {
+    const posts = storageService.getPosts();
+    const updated = posts.map(p => {
+      if (p.id === postId) {
+        const comments = p.comments || [];
+        return {
+          ...p,
+          comments: [{ id: Date.now(), content, created_at: new Date().toISOString() }, ...comments]
+        };
+      }
+      return p;
+    });
     localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(updated));
   },
 

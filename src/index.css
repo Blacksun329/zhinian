@@ -28,7 +28,8 @@
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     -webkit-tap-highlight-color: transparent;
-    @apply overflow-x-hidden;
+    @apply overflow-x-hidden w-full;
+    overscroll-behavior-x: none; /* 彻底移除左右晃动 */
   }
 
   /* Force all text elements to use serif */

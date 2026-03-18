@@ -68,7 +68,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
   const progress = (totalPoints / maxPoints) * 100;
 
   return (
-    <div className="flex flex-col pt-[var(--safe-area-inset-top)] pb-32 px-8 h-full">
+    <div className="flex flex-col pt-[var(--safe-area-inset-top)] pb-48 px-8 h-full overflow-y-auto no-scrollbar">
       <div className="w-full flex justify-between items-center h-16 mb-4">
         <ArrowLeft size={24} className="text-zen-text-muted cursor-pointer" />
         <h2 className="text-sm font-bold tracking-widest text-zen-text uppercase">重塑自我</h2>

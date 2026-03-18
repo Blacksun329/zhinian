@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowLeft, Plus, Flame, Sparkles, Wind, X, MessageSquareOff } from 'lucide-react';
+import { ArrowLeft, Plus, Flame, Sparkles, Wind, X, MessageSquareOff, MessageSquare } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import { cn } from '../lib/utils';
 import { generateZenName } from '../utils/zenNames';
+import { storageService } from '../services/storageService';
 
 interface Post {
   id: number;
@@ -32,6 +33,8 @@ export const CommunityView: React.FC<CommunityViewProps> = ({
   const [isMeditating, setIsMeditating] = useState(false);
   const [countdown, setCountdown] = useState(3);
   const [postNames, setPostNames] = useState<Record<number, string>>({});
+  const [commentingPostId, setCommentingPostId] = useState<number | null>(null);
+  const [commentText, setCommentText] = useState('');
 
   useEffect(() => {
     // Generate names for existing posts if not already present
@@ -65,6 +68,15 @@ export const CommunityView: React.FC<CommunityViewProps> = ({
   const submitPost = () => {
     handlePost();
     setShowEditor(false);
+  };
+
+  const submitComment = (postId: number) => {
+    if (!commentText.trim()) return;
+    storageService.saveComment(postId, commentText);
+    setCommentText('');
+    setCommentingPostId(null);
+    // Force refresh posts (ideally handle this via state lift or emitter)
+    window.location.reload(); // Simple sync for now, or could pass a refresh handler
   };
 
   return (
@@ -115,12 +127,53 @@ export const CommunityView: React.FC<CommunityViewProps> = ({
                 <span className="text-[10px] font-black">{post.candles || "同修"}</span>
               </button>
               
-              {/* P2: 新增评论功能入口 */}
-              <button className="flex items-center gap-2 text-zen-text-muted hover:text-zen-accent transition-colors py-1.5 px-4 rounded-full bg-zen-50 border border-transparent hover:border-zen-accent/20">
+              <button 
+                onClick={() => setCommentingPostId(commentingPostId === post.id ? null : post.id)}
+                className="flex items-center gap-2 text-zen-text-muted hover:text-zen-accent transition-colors py-1.5 px-4 rounded-full bg-zen-50 border border-transparent hover:border-zen-accent/20"
+              >
                 <MessageSquareOff size={14} />
                 <span className="text-[10px] font-black">留言</span>
               </button>
             </div>
+
+            {/* Comments List */}
+            {post.comments && post.comments.length > 0 && (
+              <div className="mt-4 ml-2 space-y-3 bg-zen-50/50 p-4 rounded-2xl border border-zen-100/50">
+                {post.comments.map(c => (
+                  <div key={c.id} className="text-xs">
+                    <span className="text-zen-accent font-black tracking-widest mr-2 uppercase opacity-50">同参:</span>
+                    <span className="text-zen-text italic">{c.content}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Inline Comment Input */}
+            <AnimatePresence>
+              {commentingPostId === post.id && (
+                <motion.div 
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="mt-4 flex gap-2 overflow-hidden"
+                >
+                  <input 
+                    autoFocus
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
+                    placeholder="说点什么..."
+                    className="flex-1 bg-white border border-zen-100 rounded-full px-4 py-2 text-xs focus:ring-1 focus:ring-zen-accent outline-none"
+                    onKeyDown={(e) => e.key === 'Enter' && submitComment(post.id)}
+                  />
+                  <button 
+                    onClick={() => submitComment(post.id)}
+                    className="px-4 py-2 bg-zen-accent text-white rounded-full text-[10px] font-bold"
+                  >
+                    发送
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         ))}
       </div>

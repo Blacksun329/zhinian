@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowLeft, Settings, Mail, History, Flame } from 'lucide-react';
+import { ArrowLeft, Settings, Mail, History, Flame, Mic, Edit3 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import { cn } from '../lib/utils';
@@ -29,6 +29,8 @@ export const EnvelopeView: React.FC<EnvelopeViewProps> = ({
   const [showHistory, setShowHistory] = useState(false);
   const [pressTimer, setPressTimer] = useState<NodeJS.Timeout | null>(null);
   const [isPressing, setIsPressing] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<any>(null);
 
   const startPress = useCallback(() => {
     if (!newEnvelope.trim()) return;
@@ -39,7 +41,6 @@ export const EnvelopeView: React.FC<EnvelopeViewProps> = ({
     }, 1500);
     setPressTimer(timer);
   }, [newEnvelope]);
-
   const endPress = useCallback(() => {
     setIsPressing(false);
     if (pressTimer) {
@@ -47,6 +48,47 @@ export const EnvelopeView: React.FC<EnvelopeViewProps> = ({
       setPressTimer(null);
     }
   }, [pressTimer]);
+
+  const stopVoice = useCallback(() => {
+    setIsListening(false);
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+    }
+  }, []);
+
+  const startVoice = useCallback(() => {
+    // Web Speech API
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("您的浏览器不支持语音识别");
+      return;
+    }
+
+    if (!recognitionRef.current) {
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'zh-CN';
+      recognition.interimResults = true;
+      recognition.continuous = true;
+
+      recognition.onresult = (event: any) => {
+        const transcript = Array.from(event.results)
+          .map((result: any) => result[0])
+          .map((result: any) => result.transcript)
+          .join('');
+        setNewEnvelope(transcript);
+      };
+
+      recognition.onerror = (event: any) => {
+        console.error("Speech recognition error", event.error);
+        stopVoice();
+      };
+
+      recognitionRef.current = recognition;
+    }
+
+    setIsListening(true);
+    recognitionRef.current.start();
+  }, [setNewEnvelope, stopVoice]);
 
   const onBurnComplete = () => {
     handleSendEnvelope();
@@ -90,42 +132,58 @@ export const EnvelopeView: React.FC<EnvelopeViewProps> = ({
               </motion.div>
               
               <div className="flex flex-col items-center mt-4">
-                <div className="flex gap-6 mb-4">
-                  <button className="w-10 h-10 rounded-full bg-zen-50 border border-zen-200 flex items-center justify-center text-zen-text-muted hover:text-zen-accent transition-colors">
-                    <span className="text-[10px] font-bold">手写</span>
+                <div className="flex items-center justify-center gap-8 mb-4 relative w-full px-12">
+                  <button 
+                    className="w-14 h-14 rounded-full bg-white border border-zen-200 flex flex-col items-center justify-center text-zen-text-muted hover:text-zen-accent transition-all active:scale-95 shadow-sm"
+                  >
+                    <Edit3 size={20} className="mb-0.5" />
+                    <span className="text-[8px] font-black uppercase">手写</span>
                   </button>
-                  <button className="w-10 h-10 rounded-full bg-zen-50 border border-zen-200 flex items-center justify-center text-zen-text-muted hover:text-zen-accent transition-colors">
-                    <span className="text-[10px] font-bold">语音</span>
+
+                  <motion.button
+                    onMouseDown={startPress}
+                    onMouseUp={endPress}
+                    onMouseLeave={endPress}
+                    onTouchStart={(e) => { e.preventDefault(); startPress(); }}
+                    onTouchEnd={(e) => { e.preventDefault(); endPress(); }}
+                    style={{ touchAction: 'none', WebkitUserSelect: 'none', userSelect: 'none' }}
+                    animate={isBurning ? { opacity: 0, scale: 0 } : (isPressing ? { scale: 0.85, filter: 'brightness(1.2)' } : { scale: 1 })}
+                    className="w-24 h-24 rounded-full flex flex-col items-center justify-center bg-orange-600 text-white shadow-[0_0_20px_rgba(234,88,12,0.4)] z-10 overflow-hidden group"
+                  >
+                    <motion.div
+                      animate={isPressing ? { 
+                        scale: [1, 1.1, 1],
+                        rotate: [0, 2, -2, 0],
+                        backgroundColor: ['#ea580c', '#f97316', '#ea580c']
+                      } : {}}
+                      transition={{ repeat: Infinity, duration: 0.4 }}
+                      className="flex flex-col items-center justify-center w-full h-full"
+                    >
+                      <Flame size={32} className={cn("transition-transform duration-500", isPressing && "scale-125")} />
+                      <span className="text-[10px] font-black mt-1 uppercase tracking-widest">{isPressing ? "燃起" : "入火"}</span>
+                    </motion.div>
+                  </motion.button>
+
+                  <button 
+                    onMouseDown={startVoice}
+                    onMouseUp={stopVoice}
+                    onTouchStart={(e) => { e.preventDefault(); startVoice(); }}
+                    onTouchEnd={(e) => { e.preventDefault(); stopVoice(); }}
+                    className={cn(
+                      "w-14 h-14 rounded-full border flex flex-col items-center justify-center transition-all active:scale-95 shadow-sm",
+                      isListening ? "bg-zen-accent text-white border-transparent animate-pulse" : "bg-white text-zen-text-muted border-zen-200"
+                    )}
+                  >
+                    <Mic size={20} className="mb-0.5" strokeWidth={isListening ? 3 : 2} />
+                    <span className="text-[8px] font-black uppercase">{isListening ? "转换" : "语音"}</span>
                   </button>
                 </div>
-                <motion.button
-                  onMouseDown={startPress}
-                  onMouseUp={endPress}
-                  onMouseLeave={endPress}
-                  onTouchStart={(e) => { e.preventDefault(); startPress(); }}
-                  onTouchEnd={(e) => { e.preventDefault(); endPress(); }}
-                  style={{ touchAction: 'none', WebkitUserSelect: 'none', userSelect: 'none' }}
-                  animate={isBurning ? { opacity: 0, scale: 0 } : (isPressing ? { scale: 0.85, filter: 'brightness(1.2)' } : { scale: 1 })}
-                  className="w-24 h-24 rounded-full flex flex-col items-center justify-center bg-orange-600 text-white shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-all duration-500 overflow-hidden group"
-                >
-                  <motion.div
-                    animate={isPressing ? { 
-                      scale: [1, 1.1, 1],
-                      rotate: [0, 2, -2, 0],
-                      backgroundColor: ['#ea580c', '#f97316', '#ea580c']
-                    } : {}}
-                    transition={{ repeat: Infinity, duration: 0.4 }}
-                    className="flex flex-col items-center justify-center w-full h-full"
-                  >
-                    <Flame size={32} className={cn("transition-transform duration-500", isPressing && "scale-125")} />
-                    <span className="text-[10px] font-black mt-1 uppercase tracking-widest">{isPressing ? "燃起" : "入火"}</span>
-                  </motion.div>
-                </motion.button>
+
                 <motion.p 
                   animate={isBurning ? { opacity: 0 } : { opacity: 1 }}
-                  className="mt-6 text-[10px] font-bold text-zen-text-muted uppercase tracking-[0.2em]"
+                  className="mt-6 text-[10px] font-bold text-zen-text-muted uppercase tracking-[0.2em] text-center"
                 >
-                  {isPressing ? "正在销毁执念..." : (newEnvelope.trim() ? "长按焚毁此刻念头" : "写下念头以解锁释放")}
+                  {isListening ? "正在将您的声音转为文字..." : (isPressing ? "让念头随火焰消散..." : (newEnvelope.trim() ? "长按中部圆饼焚毁" : "写下执念，或按住语音转换"))}
                 </motion.p>
               </div>
 
